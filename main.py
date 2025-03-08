@@ -17,7 +17,12 @@ GUILD_ID: Final[int] = int(os.getenv("GUILD_ID", 0))
 intents = discord.Intents.default()
 intents.message_content = True 
 
-bot = commands.Bot(command_prefix="/", intents=intents, application_id=APPLICATION_ID)
+# TODO: add the `!help` soon
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents,
+    application_id=APPLICATION_ID,
+)
 
 # EVENT: Bot Ready
 @bot.event
