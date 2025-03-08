@@ -40,5 +40,32 @@ class Tracker():
         return letter
 
 
+    def get_ot(self, boss_hp: float, first_hit: float, second_hit: float) -> str:
+        """Calculates the Overkill Time (OT) based on given boss HP and damage values."""
+
+        # Validate input
+        if boss_hp <= 0:
+            return "Boss HP must be a positive number."
+        if first_hit is not None and first_hit <= 0:
+            return "First hit must be a positive number."
+        if second_hit is not None and second_hit <= 0:
+            return "Second hit must be a positive number."
+
+        total_damage = first_hit + second_hit
+        overkill = total_damage - boss_hp
+
+        if overkill <= 0:
+            return "There is no overkill. No carry-over time gained."
+
+        ot_first_hit = 90 * (overkill / first_hit) + 20
+        ot_second_hit = 90 * (overkill / second_hit) + 20
+
+        return (
+            f"**Carry-over times:**\n"
+            f"If **First Hit** takes OT: **{ot_first_hit:.2f}s**\n"
+            f"If **Second Hit** takes OT: **{ot_second_hit:.2f}s**"
+        )
+
+
     def rem(self):
         pass

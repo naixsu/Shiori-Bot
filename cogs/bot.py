@@ -53,5 +53,25 @@ class Bot(commands.Cog):
         return None
 
 
+    # TODO: figure out the math of RoboNinon's `!of`
+    # !of <BossHP> - Calculates damage needed to get full carry-over assuming both hits do the same amount of damage
+    # !of <BossHP> <FirstHit> - Calculates the damage needed for the second hit to get full carry-over
+    # !of <BossHP> <FirstHit> <SecondHit> - Calculates the carry-over the second hit will get with the given damage
+    # !of <BossHP> <FirstHit> <SecondHit> <Duration>s - Calculates carry-over for battles that kill the boss before the 90 seconds end. Duration is the time it took to kill the boss during the second hit. The duration parameter must end in "s"!
+    @app_commands.command(name="get_ot", description="Calculates the Overkill Time (OT)")
+    @app_commands.describe(
+        boss_hp="Boss HP in millions (e.g., 400)",
+        first_hit="First hit's damage in millions (optional, e.g., 200)",
+        second_hit="Second hit's damage in millions (optional, e.g., 180)"
+    )
+    async def get_ot(
+        self, interaction: Interaction,
+        boss_hp: float, first_hit: float, second_hit: float
+    ):
+        """Calls the get_ot function from Tracker and sends the result."""
+        response = self.tracker.get_ot(boss_hp, first_hit, second_hit)
+        await interaction.response.send_message(response)
+
+
 async def setup(bot):
     await bot.add_cog(Bot(bot))
