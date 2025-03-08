@@ -3,7 +3,8 @@ import re
 from discord import Interaction
 from discord.ext import commands
 from discord import app_commands
-from helpers.responses import send_message
+from discord.app_commands import checks
+
 from helpers.tracker import Tracker
 
 
@@ -18,6 +19,8 @@ class Bot(commands.Cog):
 
     # TODO: validate the `cell` to only match the valid cells of the player
     # TODO: validste the `value` to only allow valid boss notations
+    # TODO: change this `tested` role to `Cult Quintet` in Hoshizuku
+    @checks.has_role("tested")
     @app_commands.command(name="update_cell", description="Updates a cell in the tracker")
     @app_commands.describe(
         cell="Cell position in A1 notation (e.g., 'C3') or (row, col) || row,col tuple",
@@ -51,6 +54,14 @@ class Bot(commands.Cog):
             pass
 
         return None
+
+    # Error Handler for Missing Role
+    @update_cell.error
+    async def update_cell_error(self, interaction: Interaction, error):
+        if isinstance(error, app_commands.errors.MissingRole):
+            await interaction.response.send_message(
+                "You need the **Cult Quintet** role to use this command!", ephemeral=True
+            )
 
 
     # TODO: figure out the math of RoboNinon's `!of`
