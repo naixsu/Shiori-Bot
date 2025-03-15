@@ -20,6 +20,16 @@ class Tracker():
         self.cache = {}
         self.last_check = None # "Player-Boss-Date-Time"
 
+
+    def _col_number_to_letter(self, col: int) -> str:
+        """Converts a column number (1-based) to a letter (A, B, C, etc.)."""
+        letter = ""
+        while col:
+            col, remainder = divmod(col - 1, 26)
+            letter = chr(65 + remainder) + letter
+        return letter
+
+
     def update_cell(self, cell: tuple[int, int] | str, value: str) -> str:
         """Updates a cell using either A1 notation ('C3') or (row, col) tuple."""
 
@@ -38,14 +48,6 @@ class Tracker():
             raise ValueError("Cell must be A1 notation (e.g., 'C3') or a (row, col) tuple.")
 
         return f"Updated cell {cell} with '{value.upper()}'"
-
-    def _col_number_to_letter(self, col: int) -> str:
-        """Converts a column number (1-based) to a letter (A, B, C, etc.)."""
-        letter = ""
-        while col:
-            col, remainder = divmod(col - 1, 26)
-            letter = chr(65 + remainder) + letter
-        return letter
 
 
     def get_ot(self, boss_hp: float, first_hit: float, second_hit: float) -> str:

@@ -17,6 +17,22 @@ class Bot(commands.Cog):
     async def test(self, interaction: Interaction):
         await interaction.response.send_message("Test")
 
+
+    def _parse_cell_input(self, cell: str) -> tuple[int, int] | str | None:
+        """Parses the cell input as either A1 notation or (row, col) tuple."""
+        if re.match(r"^[A-Za-z]+\d+$", cell):  # A1 notation
+            return cell.upper()
+
+        try:
+            row, col = eval(cell)
+            if isinstance(row, int) and isinstance(col, int):
+                return (row, col)
+        except:
+            pass
+
+        return None
+
+
     # TODO: validate the `cell` to only match the valid cells of the player
     # TODO: validste the `value` to only allow valid boss notations
     # TODO: change this `tested` role to `Cult Quintet` in Hoshizuku
@@ -41,19 +57,6 @@ class Bot(commands.Cog):
         response = self.tracker.update_cell(cell_position, value)
         await interaction.response.send_message(response)
 
-    def _parse_cell_input(self, cell: str) -> tuple[int, int] | str | None:
-        """Parses the cell input as either A1 notation or (row, col) tuple."""
-        if re.match(r"^[A-Za-z]+\d+$", cell):  # A1 notation
-            return cell.upper()
-
-        try:
-            row, col = eval(cell)
-            if isinstance(row, int) and isinstance(col, int):
-                return (row, col)
-        except:
-            pass
-
-        return None
 
     # Error Handler for Missing Role
     @update_cell.error
@@ -81,7 +84,20 @@ class Bot(commands.Cog):
     ):
         """Calls the get_ot function from Tracker and sends the result."""
         response = self.tracker.get_ot(boss_hp, first_hit, second_hit)
-        await interaction.response.send_message(response)
+
+        embed = Embed(
+            title="OT Calculation",
+            color=Color.green()
+        )
+
+        embed.add_field(name="Boss HP", value=f"{boss_hp}M", inline=True)
+        embed.add_field(name="First Hit", value=f"{first_hit}M", inline=True)
+        embed.add_field(name="Second Hit", value=f"{second_hit}M", inline=True)
+
+        if isinstance(response, str):
+            embed.add_field(name="", value=response, inline=False)
+
+        await interaction.response.send_message(embed=embed)
 
 
     @app_commands.command(name="rem", description="Displays remaining hits for the current day.")
