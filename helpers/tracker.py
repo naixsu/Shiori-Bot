@@ -1,5 +1,11 @@
 import gspread, re
+import helpers.data as data
+
 from google.oauth2.service_account import Credentials
+from datetime import datetime, timezone, timedelta
+from typing import Union
+
+# https://docs.gspread.org/en/v6.0.0/user-guide.html#updating-cells
 
 # Authentication
 scopes = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -11,6 +17,8 @@ sheet = client.open_by_key(sheet_id)
 class Tracker():
     def __init__(self, worksheet_no: int = 0): # This defaults to the first worksheet
         self.worksheet = sheet.get_worksheet(worksheet_no)
+        self.cache = {}
+        self.last_check = None # "Player-Boss-Date-Time"
 
     def update_cell(self, cell: tuple[int, int] | str, value: str) -> str:
         """Updates a cell using either A1 notation ('C3') or (row, col) tuple."""
@@ -67,5 +75,67 @@ class Tracker():
         )
 
 
-    def rem(self):
-        pass
+    def _get_last_check(self) -> str:
+        values_list = self.worksheet.get_values("V26:X32")
+        player = values_list[0].pop()
+        boss = values_list[2].pop()
+        date = values_list[4].pop() # %Y/%m/%d
+        time = values_list[6].pop() # %H:%M
+
+        last_check = f"{player.upper()}-{boss.upper()}-{date}-{time}"
+
+        return last_check
+
+
+    def _get_current_day(self) -> int:
+        now_utc = datetime.now(timezone.utc)
+        # # Debug
+        # now_utc = now_utc.replace(
+        #     day=25, hour=4, minute=1, second=0
+        # )
+        now_utc -= timedelta(hours=8)
+        now_jst = now_utc.astimezone(data.TIME_ZONE_JST)
+        time_difference = now_jst - data.CB_START_DATE
+        days_elapsed, _ = divmod(time_difference.total_seconds(), 86400)  # 86400 seconds in a day
+    
+        if now_jst.hour < data.CB_START_DATE.hour: # 05:00 JST reset
+            current_day = int(days_elapsed)
+        else:
+            current_day = int(days_elapsed) + 1
+
+        return current_day
+
+
+    def _process_hits(self) -> None:
+        print(f"==> Processing player hits {datetime.now(timezone.utc)}")
+        current_day = self._get_current_day()
+
+        for player, range in data.PLAYERS.items():
+            print(f"=> Processing {player}")
+            row_player_hits = self.worksheet.get_values(range)
+            start = (current_day - 1) * 3
+            day_player_hits = row_player_hits[start:start + 3]
+
+            if not len(day_player_hits):
+                self.cache[player] = 3
+            else:
+                self.cache[player] = 3 - len(day_player_hits[0])
+
+        print("==> Done processing")
+
+
+    def rem(self) -> Union[dict, str]:
+        if self._get_current_day() < 0:
+            return "CB hasn't started yet"
+        
+        last_check = self._get_last_check()
+        process_hits = False
+
+        if last_check != self.last_check:
+            self.last_check = last_check
+            process_hits = True
+
+        if process_hits:
+            self._process_hits()
+
+        return self.cache

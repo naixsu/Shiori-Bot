@@ -1,6 +1,6 @@
 import re
 
-from discord import Interaction
+from discord import Interaction, Embed, Color
 from discord.ext import commands
 from discord import app_commands
 from discord.app_commands import checks
@@ -82,6 +82,41 @@ class Bot(commands.Cog):
         """Calls the get_ot function from Tracker and sends the result."""
         response = self.tracker.get_ot(boss_hp, first_hit, second_hit)
         await interaction.response.send_message(response)
+
+
+    @app_commands.command(name="rem", description="Displays remaining hits for the current day.")
+    async def rem(self, interaction: Interaction):
+        await interaction.response.defer()
+        remaining_hits = self.tracker.rem()
+
+        # CB hasn't started yet
+        if isinstance(remaining_hits, str):
+            await interaction.followup.send(remaining_hits, ephemeral=True)
+            return
+
+        # Create an embed for better formatting
+        embed = Embed(
+            title="Remaining Hits for Today",
+            color=Color.green()
+        )
+
+        # Sort players by remaining hits
+        sorted_hits = sorted(remaining_hits.items(), key=lambda x: x[1], reverse=True)
+
+        # Format player data into columns
+        hit_lines = []
+        for player, hits in sorted_hits:
+            if hits == 0: # Ignore no remaining hits
+                continue
+
+            hit_word = "hit" if hits == 1 else "hits"
+            hit_lines.append(f"**{player}**: `{hits}` {hit_word} left")
+
+        # Add formatted player data to embed
+        embed.description = "\n".join(hit_lines) if hit_lines else "No players found."
+
+        # Send the embed
+        await interaction.followup.send(embed=embed)
 
 
 async def setup(bot):
