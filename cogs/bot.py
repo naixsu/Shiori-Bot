@@ -36,7 +36,7 @@ class Bot(commands.Cog):
     # TODO: validate the `cell` to only match the valid cells of the player
     # TODO: validste the `value` to only allow valid boss notations
     # TODO: change this `tested` role to `Cult Quintet` in Hoshizuku
-    @checks.has_role("tested")
+    @checks.has_role("Cult Quintet")
     @app_commands.command(name="update_cell", description="Updates a cell in the tracker")
     @app_commands.describe(
         cell="Cell position in A1 notation (e.g., 'C3') or (row, col) || row,col tuple",
