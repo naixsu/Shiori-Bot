@@ -1,4 +1,7 @@
 import re
+import asyncio
+import sys
+import subprocess
 
 from discord import Interaction, Embed, Color
 from discord.ext import commands
@@ -133,6 +136,15 @@ class Bot(commands.Cog):
 
         # Send the embed
         await interaction.followup.send(embed=embed)
+
+
+    @checks.has_role("Cult Quintet")
+    @app_commands.command(name="stop", description="Shuts down the bot until naix fixes it again.")
+    async def stop(self, interaction: Interaction):
+        """Shuts down the bot (restricted to Cult Quintet role)"""
+        await interaction.response.send_message("Shutting down...", ephemeral=True)
+        await asyncio.sleep(2)
+        await self.bot.close()
 
 
 async def setup(bot):
