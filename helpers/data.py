@@ -17,7 +17,7 @@ PLAYERS = {
     "Lolly": "C24:Q24",
     "Maokuss": "C26:Q26",
     "Melody": "C28:Q28",
-    "naixsy": "C30:Q30",
+    "naixsu": "C30:Q30",
     "Puchikii (ぷちきい)": "C32:Q32",
     "Quietus": "C34:Q34",
     "RdVL": "C36:Q36",

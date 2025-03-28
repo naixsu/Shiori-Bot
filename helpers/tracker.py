@@ -89,32 +89,23 @@ class Tracker():
         return last_check
 
 
-    def _get_current_day(self) -> int:
+    def get_current_day(self) -> int:
         # TODO: clean this up when it's ok lol
         # # Debug
         # now_utc = now_utc.replace(
         #     day=25, hour=4, minute=1, second=0
         # )
         now_utc = datetime.now()
-        print("now_utc", now_utc)
         now_jst = now_utc.astimezone(data.TIME_ZONE_JST)
-        print("now_jst", now_jst)
         time_difference = now_jst - data.CB_START_DATE
-        print("time_difference", time_difference)
         days_elapsed, _ = divmod(time_difference.total_seconds(), 86400)  # 86400 seconds in a day
-        print("days_elapsed", days_elapsed)
-        # if now_jst.hour < data.CB_START_DATE.hour: # 05:00 JST reset
-        #     current_day = int(days_elapsed)
-        # else:
-        #     current_day = int(days_elapsed) + 1
-
         current_day = int(days_elapsed)
 
         return current_day
 
 
     def _process_hits(self) -> None:
-        current_day = self._get_current_day()
+        current_day = self.get_current_day()
 
         if current_day == 0:
             current_day += 1
@@ -123,20 +114,21 @@ class Tracker():
 
         for player, range in data.PLAYERS.items():
             row_player_hits = self.worksheet.get_values(range)
-            start = (current_day - 1) * 3
-            day_player_hits = row_player_hits[start:start + 3]
-            print(f"=> Processing {player}\nStart: {start} | {row_player_hits}")
 
-            if not len(day_player_hits):
+            if not row_player_hits:
                 self.cache[player] = 3
-            else:
-                self.cache[player] = 3 - len(day_player_hits[0])
+                continue
 
-        print("==> Done processing")
+            start = (current_day - 1) * 3
+            day_player_hits = row_player_hits[0][start:start + 3]
+            print(f"=> Processing {player}\nStart: {start} | {day_player_hits} | {row_player_hits}")
+            self.cache[player] = 3 - len(day_player_hits)
+
+        print("==> Done processing\n")
 
 
     def rem(self) -> Union[dict, str]:
-        if self._get_current_day() < 0:
+        if self.get_current_day() < 0:
             return "CB hasn't started yet"
 
         last_check = self._get_last_check()

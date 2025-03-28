@@ -107,6 +107,7 @@ class Bot(commands.Cog):
     async def rem(self, interaction: Interaction):
         await interaction.response.defer()
         remaining_hits = self.tracker.rem()
+        day = self.tracker.get_current_day()
 
         # CB hasn't started yet
         if isinstance(remaining_hits, str):
@@ -115,7 +116,7 @@ class Bot(commands.Cog):
 
         # Create an embed for better formatting
         embed = Embed(
-            title="Remaining Hits for Today",
+            title=f"Remaining Hits for Day {day}",
             color=Color.green()
         )
 
