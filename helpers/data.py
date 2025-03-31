@@ -14,6 +14,10 @@ HIT_DATA = {
     5: "O6:Q65",
 }
 
+EMOJIS = {
+    "ShioriTotemoKawaii": "<a:ShioriTotemoKawaii:923837838901018665>",
+}
+
 # CB date
 TIME_ZONE_JST = pytz.timezone("Asia/Tokyo")
 CB_START_DATE = datetime(

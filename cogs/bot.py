@@ -9,6 +9,7 @@ from discord import app_commands
 from discord.app_commands import checks
 
 from helpers.tracker import Tracker
+import helpers.data as data
 
 
 class Bot(commands.Cog):
@@ -100,7 +101,9 @@ class Bot(commands.Cog):
         if isinstance(response, str):
             embed.add_field(name="", value=response, inline=False)
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(
+            f"{data.EMOJIS.get('ShioriTotemoKawaii', '')} Here's the OT analysis! Hope this helps! 🎯", embed=embed
+        )
 
 
     @app_commands.command(name="rem", description="Displays remaining hits for the current day.")
@@ -155,16 +158,22 @@ class Bot(commands.Cog):
             embeds.append(ots_embed)
 
         if embeds:
-            await interaction.followup.send(embeds=embeds)
+            await interaction.followup.send(
+                f"{data.EMOJIS.get('ShioriTotemoKawaii', '')} Here's our battle status! 🏹", embeds=embeds
+            )
         else:
-            await interaction.followup.send("No players found.")
+            await interaction.followup.send(
+                f"{data.EMOJIS.get('ShioriTotemoKawaii', '')} Everyone's done attacking! Great work! 🎯"
+            )
 
 
     @checks.has_role("Cult Quintet")
     @app_commands.command(name="stop", description="Shuts down the bot until naix fixes it again.")
     async def stop(self, interaction: Interaction):
         """Shuts down the bot (restricted to Cult Quintet role)"""
-        await interaction.response.send_message("Shutting down...", ephemeral=True)
+        await interaction.response.send_message(
+            f"{data.EMOJIS.get('ShioriTotemoKawaii', '')} I'm going to rest now... See you next Clan Battle!🏹✨"
+        )
         await asyncio.sleep(2)
         await self.bot.close()
 
