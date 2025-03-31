@@ -114,29 +114,50 @@ class Bot(commands.Cog):
             await interaction.followup.send(remaining_hits, ephemeral=True)
             return
 
-        # Create an embed for better formatting
-        embed = Embed(
-            title=f"Remaining Hits for Day {day}",
-            color=Color.green()
-        )
+        # Separate hits and OTs
+        hits_lines = []
+        ots_lines = []
 
-        # Sort players by remaining hits
-        sorted_hits = sorted(remaining_hits.items(), key=lambda x: x[1], reverse=True)
+        sorted_hits = sorted(remaining_hits.items(), key=lambda x: x[1]["Hits"], reverse=True)
+        sorted_ots = sorted(remaining_hits.items(), key=lambda x: x[1]["OTs"], reverse=True)
 
-        # Format player data into columns
-        hit_lines = []
-        for player, hits in sorted_hits:
-            if hits == 0: # Ignore no remaining hits
-                continue
+        for player, stats in sorted_hits:
+            hits = stats["Hits"]
 
-            hit_word = "hit" if hits == 1 else "hits"
-            hit_lines.append(f"**{player}**: `{hits}` {hit_word} left")
+            if hits > 0:
+                hit_word = "hit" if hits == 1 else "hits"
+                hits_lines.append(f"**{player}**: `{hits}` {hit_word} left")
 
-        # Add formatted player data to embed
-        embed.description = "\n".join(hit_lines) if hit_lines else "No players found."
+        for player, stats in sorted_ots:
+            ots = stats["OTs"]
 
-        # Send the embed
-        await interaction.followup.send(embed=embed)
+            if ots > 0:
+                ot_word = "OT" if ots == 1 else "OTs"
+                ots_lines.append(f"**{player}**: `{ots}` {ot_word} left")
+
+        # Create and send embeds
+        embeds = []
+
+        if hits_lines:
+            hits_embed = Embed(
+                title=f"Remaining Hits for Day {day}",
+                description="\n".join(hits_lines),
+                color=Color.green()
+            )
+            embeds.append(hits_embed)
+
+        if ots_lines:
+            ots_embed = Embed(
+                title=f"Remaining OTs for Day {day}",
+                description="\n".join(ots_lines),
+                color=Color.blue()
+            )
+            embeds.append(ots_embed)
+
+        if embeds:
+            await interaction.followup.send(embeds=embeds)
+        else:
+            await interaction.followup.send("No players found.")
 
 
     @checks.has_role("Cult Quintet")

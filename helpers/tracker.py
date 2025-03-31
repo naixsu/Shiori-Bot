@@ -92,16 +92,24 @@ class Tracker():
     def get_current_day(self) -> int:
         # TODO: clean this up when it's ok lol
         # # Debug
+        now_utc = datetime.now()
         # now_utc = now_utc.replace(
         #     day=25, hour=4, minute=1, second=0
         # )
-        now_utc = datetime.now()
         now_jst = now_utc.astimezone(data.TIME_ZONE_JST)
         time_difference = now_jst - data.CB_START_DATE
         days_elapsed, _ = divmod(time_difference.total_seconds(), 86400)  # 86400 seconds in a day
         current_day = int(days_elapsed)
 
         return current_day
+
+
+    def _get_remaining_hits(self, lst):
+        return 3 - sum(1 for item in lst if item.strip())
+
+
+    def _get_remaining_ots(self, lst):
+        return sum(1 for item in lst if item.lower() == "ot")
 
 
     def _process_hits(self) -> None:
@@ -111,19 +119,26 @@ class Tracker():
             current_day += 1
 
         print(f"==> Processing player hits {datetime.now(timezone.utc)} for day {current_day}")
+        hit_range = data.HIT_DATA[current_day]
+        hit_data = self.worksheet.get_values(hit_range)
+        players_list = self.worksheet.get_values(data.PLAYERS_RANGE)
 
-        for player, range in data.PLAYERS.items():
-            row_player_hits = self.worksheet.get_values(range)
+        for i in range(0, len(players_list), 2):
+            player = players_list[i][0]
+            try:
+                hits, ots = hit_data[i], hit_data[i+1]
+            except:
+                hits, ots = [], []
 
-            if not row_player_hits:
-                self.cache[player] = 3
-                continue
+            rem_hits = self._get_remaining_hits(hits)
+            rem_ots = self._get_remaining_ots(ots)
 
-            start = (current_day - 1) * 3
-            day_player_hits = row_player_hits[0][start:start + 3]
-            print(f"=> Processing {player}\nStart: {start} | {day_player_hits} | {row_player_hits}")
-            self.cache[player] = 3 - len(day_player_hits)
+            print(f"=> Processing {player}\nHits: {hits} | OTs {ots}")
 
+            self.cache[player] = {
+                "Hits": rem_hits,
+                "OTs": rem_ots,
+            }
         print("==> Done processing\n")
 
 

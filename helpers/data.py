@@ -3,38 +3,15 @@ import pytz
 from datetime import datetime, timedelta
 
 # Player data
-# TODO: make it so it's automated from the sheet
-PLAYERS = {
-    "Aidown": "C6:Q6",
-    "Cierra": "C8:Q8",
-    "cnet128": "C10:Q10",
-    "Daniel": "C12:Q12",
-    "FoxKou": "C14:Q14",
-    "Frost": "C16:Q16",
-    "Grenouille": "C18:Q18",
-    "Kaichou": "C20:Q20",
-    "Kinkin": "C22:Q22",
-    "Lolly": "C24:Q24",
-    "Maokuss": "C26:Q26",
-    "Melody": "C28:Q28",
-    "naixsu": "C30:Q30",
-    "Puchikii (ぷちきい)": "C32:Q32",
-    "Quietus": "C34:Q34",
-    "RdVL": "C36:Q36",
-    "Rein (レイン) (UMI)": "C38:Q38",
-    "Rinku": "C40:Q40",
-    "SaielaM": "C42:Q42",
-    "Shironeko (アンドリ)": "C44:Q44",
-    "Slifer1993": "C46:Q46",
-    "Sora (ソラ)": "C48:Q48",
-    "SuamiKoro": "C50:Q50",
-    "ThotSimp": "C52:Q52",
-    "Toycon": "C54:Q54",
-    "UF": "C56:Q56",
-    "xFuRiiOs": "C58:Q58",
-    "Xyrus": "C60:Q60",
-    "Yusha": "C62:Q62",
-    "Yuuki": "C64:Q64",
+PLAYERS_RANGE = "B6:B64"
+
+# Hit data depending on CB day
+HIT_DATA = {
+    1: "C6:E65",
+    2: "F6:H65",
+    3: "I6:K65",
+    4: "L6:N65",
+    5: "O6:Q65",
 }
 
 # CB date
