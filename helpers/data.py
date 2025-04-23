@@ -19,11 +19,12 @@ EMOJIS = {
 }
 
 # CB date
+# TODO: turn this auto; get data from sheet or something
 TIME_ZONE_JST = pytz.timezone("Asia/Tokyo")
 CB_START_DATE = datetime(
     year=2025,
-    month=3,
-    day=25,
+    month=4,
+    day=26,
     hour=5,
     minute=0,
     second=0,
