@@ -98,8 +98,13 @@ class Tracker():
         # )
         now_jst = now_utc.astimezone(data.TIME_ZONE_JST)
         time_difference = now_jst - data.CB_START_DATE
-        days_elapsed, _ = divmod(time_difference.total_seconds(), 86400)  # 86400 seconds in a day
+        days_elapsed, seconds = divmod(time_difference.total_seconds(), 86400)  # 86400 seconds in a day
         current_day = int(days_elapsed)
+
+        if seconds > 0:
+            current_day += 1
+
+        print(f"get_current_day() ==> {now_utc} | {now_jst} | {time_difference} | {days_elapsed} | {current_day}")
 
         return current_day
 
