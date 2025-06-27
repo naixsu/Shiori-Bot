@@ -109,7 +109,7 @@ class Bot(commands.Cog):
     @app_commands.command(name="rem", description="Displays remaining hits for the current day.")
     async def rem(self, interaction: Interaction):
         await interaction.response.defer()
-        remaining_hits = self.tracker.rem()
+        remaining_hits, last_check = self.tracker.rem()
         day = self.tracker.get_current_day()
 
         # CB hasn't started yet
@@ -140,6 +140,13 @@ class Bot(commands.Cog):
 
         # Create and send embeds
         embeds = []
+        embeds.append(
+            Embed(
+                title="Sheet Last Updated",
+                description=last_check,
+                color=Color.red()
+            )
+        )
 
         if hits_lines:
             hits_embed = Embed(
