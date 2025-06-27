@@ -20,6 +20,33 @@ class Tracker():
         self.cache = {}
         self.last_check = None # "Player-Boss-Date-Time"
 
+        # Initialize dates
+        self.start_date, self.end_date = self._process_dates()
+
+    def _process_dates(self) -> tuple[datetime, datetime]:
+        start_date_str = self.worksheet.get_values(data.CB_START_DATE)[0][0]
+
+        start_date_obj = datetime.strptime(start_date_str, "%m/%d/%Y")
+        start_date = datetime(
+            year=start_date_obj.year,
+            month=start_date_obj.month,
+            day=start_date_obj.day,
+            hour=5,
+            minute=0,
+            second=0,
+            microsecond=0,
+            tzinfo=data.TIME_ZONE_JST
+        )
+
+        end_date = start_date + timedelta(
+            days=4,
+            hours=18,
+            minutes=59,
+            seconds=59,
+        )
+
+        return start_date, end_date
+
 
     def _col_number_to_letter(self, col: int) -> str:
         """Converts a column number (1-based) to a letter (A, B, C, etc.)."""
@@ -97,7 +124,7 @@ class Tracker():
         #     day=25, hour=4, minute=1, second=0
         # )
         now_jst = now_utc.astimezone(data.TIME_ZONE_JST)
-        time_difference = now_jst - data.CB_START_DATE
+        time_difference = now_jst - self.start_date
         days_elapsed, seconds = divmod(time_difference.total_seconds(), 86400)  # 86400 seconds in a day
         current_day = int(days_elapsed)
 
@@ -159,4 +186,4 @@ class Tracker():
             self.last_check = last_check
             self._process_hits()
 
-        return self.cache
+        return self.cache, last_check

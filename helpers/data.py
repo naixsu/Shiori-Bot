@@ -19,22 +19,5 @@ EMOJIS = {
 }
 
 # CB date
-# TODO: turn this auto; get data from sheet or something
 TIME_ZONE_JST = pytz.timezone("Asia/Tokyo")
-CB_START_DATE = datetime(
-    year=2025,
-    month=4,
-    day=25,
-    hour=5,
-    minute=0,
-    second=0,
-    microsecond=0,
-    tzinfo=TIME_ZONE_JST
-)
-
-CB_END_DATE = CB_START_DATE + timedelta(
-    days=4,
-    hours=18,
-    minutes=59,
-    seconds=59,
-)
+CB_START_DATE = "L1"
