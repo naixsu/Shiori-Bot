@@ -45,6 +45,7 @@ class Tracker():
             seconds=59,
         )
 
+        print(f"_process_dates() ==> {start_date} | {end_date}")
         return start_date, end_date
 
 
@@ -175,6 +176,9 @@ class Tracker():
 
 
     def rem(self) -> Union[dict, str]:
+        # Process dates again just in case something weird happens
+        self._process_dates()
+
         if self.get_current_day() < 0:
             return "CB hasn't started yet"
 
