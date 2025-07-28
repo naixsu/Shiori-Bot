@@ -1,4 +1,4 @@
-import gspread, re
+import gspread, os
 import helpers.data as data
 
 from google.oauth2.service_account import Credentials
@@ -11,7 +11,7 @@ from typing import Union
 scopes = ["https://www.googleapis.com/auth/spreadsheets"]
 creds = Credentials.from_service_account_file("creds.json", scopes=scopes)
 client = gspread.authorize(creds)
-sheet_id = "1KhbXANYNqZuG-a3l17uFtYFkj7JlGGVhv6GJpHfQ3MM"
+sheet_id = os.getenv("SHEET_ID", 0)
 sheet = client.open_by_key(sheet_id)
 
 class Tracker():
