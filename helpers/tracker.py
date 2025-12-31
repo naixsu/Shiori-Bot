@@ -175,12 +175,21 @@ class Tracker():
         print("==> Done processing\n")
 
 
-    def rem(self) -> Union[dict, str]:
+    def rem(self) -> tuple[Union[dict, str], str | None]:
         # Process dates again just in case something weird happens
-        self._process_dates()
+        self.start_date, self.end_date = self._process_dates()
 
-        if self.get_current_day() < 0:
-            return "CB hasn't started yet"
+        # Compute once to avoid inconsistent results across calls
+        day = self.get_current_day()
+
+        # Treat day 0 as Day 1 (CB has started)
+        if day == 0:
+            day = 1
+
+        if day < 0:
+            return "CB hasn't started yet", None
+        elif day > 5:
+            return "CB has already ended", None
 
         last_check = self._get_last_check()
 
