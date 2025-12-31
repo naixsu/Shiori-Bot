@@ -34,6 +34,28 @@ python run.py
 python main.py
 ```
 
+## 🐳 Docker
+
+This repo expects:
+- `creds.json` in the project root (Google service account credentials)
+- `.env` containing at least:
+  - `DISCORD_TOKEN`
+  - `SHEET_ID`
+  - `APPLICATION_ID`, `GUILD_ID`
+
+### Run (recommended)
+
+```bash
+docker compose up --build -d
+docker compose logs -f
+```
+
+### Run with auto-reload (dev)
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
 ## 📁 Notes
 
 - Your **Google Sheets credentials** must be available in the correct location for this bot to function. Just have it in the root directory and call it `creds.json`.

@@ -1,0 +1,7 @@
+services:
+  shiori-bot:
+    command: ["python", "run.py"]
+    volumes:
+      - ./:/app
+      - ./creds.json:/app/creds.json:ro
+

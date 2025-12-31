@@ -1,0 +1,10 @@
+services:
+  shiori-bot:
+    build: .
+    container_name: shiori-bot
+    env_file:
+      - .env
+    volumes:
+      - ./creds.json:/app/creds.json:ro
+    restart: unless-stopped
+
