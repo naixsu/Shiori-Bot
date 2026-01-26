@@ -18,5 +18,5 @@ COPY --chown=appuser:appuser . /app
 
 USER appuser
 
-CMD ["python", "main.py"]
+CMD ["python", "run.py"]
 
