@@ -23,7 +23,16 @@ class Tracker():
         # Initialize dates
         self.start_date, self.end_date = self._process_dates()
 
+
+    def _reset_worksheet_no(self):
+        self.worksheet = sheet.get_worksheet(0)
+        print("Worksheet has been reset")
+
+
     def _process_dates(self) -> tuple[datetime, datetime]:
+        # Reset this just in case
+        self._reset_worksheet_no()
+
         start_date_str = self.worksheet.get_values(data.CB_START_DATE)[0][0]
 
         start_date_obj = datetime.strptime(start_date_str, "%m/%d/%Y")
@@ -178,6 +187,8 @@ class Tracker():
     def rem(self) -> tuple[Union[dict, str], str | None]:
         # Process dates again just in case something weird happens
         self.start_date, self.end_date = self._process_dates()
+
+        print(f"/rem used => {self.start_date}, {self.end_date}")
 
         # Compute once to avoid inconsistent results across calls
         day = self.get_current_day()
