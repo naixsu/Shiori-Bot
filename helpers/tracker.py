@@ -165,22 +165,48 @@ class Tracker():
         hit_data = self.worksheet.get_values(hit_range)
         players_list = self.worksheet.get_values(data.PLAYERS_RANGE)
 
+        # Rebuild cache from the current sheet state so replaced/removed players
+        # don't linger in memory across refreshes.
+        old_cache = self.cache
+        new_cache: dict[str, dict[str, int]] = {}
+
         for i in range(0, len(players_list), 2):
-            player = players_list[i][0]
+            player = (players_list[i][0] if players_list[i] else "").strip()
+            if not player:
+                # Player cell is blank; skip so we don't create cache entries for non-players.
+                print(f"Skipping blank player row index={i} (sheet row offset={6 + i})")
+                continue
             try:
                 hits, ots = hit_data[i], hit_data[i+1]
-            except:
+            except IndexError:
                 hits, ots = [], []
+                print(
+                    f"Hit data missing for player={player} at index={i} (range={hit_range}); "
+                    f"defaulting hits/ots to empty"
+                )
 
             rem_hits = self._get_remaining_hits(hits)
             rem_ots = self._get_remaining_ots(ots)
 
             print(f"=> Processing {player}\nHits: {hits} | OTs {ots}")
 
-            self.cache[player] = {
+            new_cache[player] = {
                 "Hits": rem_hits,
                 "OTs": rem_ots,
             }
+
+        # Swap cache atomically after processing so consumers never see partial state.
+        self.cache = new_cache
+
+        removed_players = set(old_cache.keys()) - set(new_cache.keys())
+        added_players = set(new_cache.keys()) - set(old_cache.keys())
+
+        if removed_players:
+            print(f"Removed {len(removed_players)} stale player(s) from cache: {sorted(removed_players)}")
+        if added_players:
+            print(f"Added {len(added_players)} new player(s) to cache: {sorted(added_players)}")
+
+        print(f"Cache refresh complete: {len(new_cache)} player(s)")
         print("==> Done processing\n")
 
 
@@ -189,6 +215,7 @@ class Tracker():
         self.start_date, self.end_date = self._process_dates()
 
         print(f"/rem used => {self.start_date}, {self.end_date}")
+        print(f"/rem used; start_date={self.start_date} end_date={self.end_date}")
 
         # Compute once to avoid inconsistent results across calls
         day = self.get_current_day()
@@ -198,8 +225,16 @@ class Tracker():
             day = 1
 
         if day < 0:
+            # CB not started; reset state so we don't serve stale data.
+            self.cache = {}
+            self.last_check = None
+            print("CB hasn't started yet; cleared cache and last_check")
             return "CB hasn't started yet", None
         elif day > 5:
+            # CB ended; reset state so we don't serve stale data.
+            self.cache = {}
+            self.last_check = None
+            print("CB has already ended; cleared cache and last_check")
             return "CB has already ended", None
 
         last_check = self._get_last_check()
@@ -208,6 +243,9 @@ class Tracker():
 
         if last_check != self.last_check:
             self.last_check = last_check
+
+            print(f"last_check changed; refreshing hits cache (last_check={last_check})")
+
             self._process_hits()
 
         return self.cache, last_check
